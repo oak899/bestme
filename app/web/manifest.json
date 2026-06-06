@@ -1,0 +1,9 @@
+{
+  "name": "BestMe",
+  "short_name": "BestMe",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F7F5F2",
+  "theme_color": "#2D3436",
+  "description": "AI-powered daily life, work, and exercise tracker"
+}
