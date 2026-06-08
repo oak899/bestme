@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         await state.login(_email.text.trim(), _password.text);
       }
-      if (mounted) context.go('/dashboard');
+      // Router will handle redirect automatically via auth.canUseApp
     } catch (e) {
       final msg = e.toString();
       if (msg.contains('404')) {
