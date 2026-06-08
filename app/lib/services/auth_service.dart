@@ -29,9 +29,11 @@ class AuthService {
   Future<void> save(String token, String userEmail) async {
     _token = token;
     email = userEmail;
+    authSkipped = false; // Clear skipped flag when user actually logs in
     final p = await SharedPreferences.getInstance();
     await p.setString(_keyToken, token);
     await p.setString(_keyEmail, userEmail);
+    await p.setBool(_keySkipped, false);
   }
 
   Future<void> clear() async {

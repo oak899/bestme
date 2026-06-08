@@ -9,8 +9,16 @@ CREATE TABLE IF NOT EXISTS users (
   name TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
-
-ALTER TABLE time_entries ADD COLUMN paused_at TEXT;
 `)
+	if err != nil {
+		return err
+	}
+
+	// Check if paused_at column exists before adding it
+	var count int
+	_ = s.db.QueryRow(`SELECT COUNT(*) FROM pragma_table_info('time_entries') WHERE name = 'paused_at'`).Scan(&count)
+	if count == 0 {
+		_, err = s.db.Exec(`ALTER TABLE time_entries ADD COLUMN paused_at TEXT`)
+	}
 	return err
 }

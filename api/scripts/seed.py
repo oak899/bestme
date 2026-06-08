@@ -9,8 +9,8 @@ from datetime import datetime, timedelta
 BASE_URL = "https://bestme.zfloo.com/api"
 # BASE_URL = "http://localhost:8080/api"  # Uncomment for local dev
 
-EMAIL = "test@growthos.com"
-PASSWORD = "test123456"
+EMAIL = "aaa@aaa.com"
+PASSWORD = "aaaaaa"
 NAME = "Test User"
 
 CATEGORIES = ["life", "work", "exercise", "other"]
