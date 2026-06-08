@@ -105,10 +105,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onTap: () async {
                         final p = await showDialog<String>(
                           context: context,
-                          builder: (_) => SimpleDialog(
+                          builder: (dialogCtx) => SimpleDialog(
                             title: const Text('默认优先级'),
                             children: ['high', 'medium', 'low']
-                                .map((e) => SimpleDialogOption(onPressed: () => Navigator.pop(context, e), child: Text(e)))
+                                .map((e) => SimpleDialogOption(onPressed: () => Navigator.pop(dialogCtx, e), child: Text(e)))
                                 .toList(),
                           ),
                         );
@@ -275,16 +275,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final ctrl = TextEditingController(text: '${s.dailyGoalMinutes ~/ 60}');
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('每日目标（小时）'),
         content: TextField(controller: ctrl, keyboardType: TextInputType.number),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(dialogCtx), child: const Text('取消')),
           FilledButton(
             onPressed: () async {
               final h = int.tryParse(ctrl.text) ?? 8;
               await state.saveSettings(s.copyWith(dailyGoalMinutes: h * 60));
-              if (context.mounted) Navigator.pop(context);
+              if (dialogCtx.mounted) Navigator.pop(dialogCtx);
             },
             child: const Text('保存'),
           ),
@@ -297,11 +297,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final ctrl = TextEditingController(text: s.growthGoal);
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('成长目标'),
         content: TextField(controller: ctrl, maxLines: 3),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(dialogCtx), child: const Text('取消')),
           FilledButton(
             onPressed: () async {
               await state.saveSettings(UserSettings(
@@ -312,7 +312,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 growthGoal: ctrl.text.trim(),
                 dailyPlanRemindAt: s.dailyPlanRemindAt,
               ));
-              if (context.mounted) Navigator.pop(context);
+              if (dialogCtx.mounted) Navigator.pop(dialogCtx);
             },
             child: const Text('保存'),
           ),

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/oak899/bestme/api/auth"
-	"github.com/oak899/bestme/api/models"
-	"github.com/oak899/bestme/api/store"
+	"github.com/oak899/growthos/api/auth"
+	"github.com/oak899/growthos/api/models"
+	"github.com/oak899/growthos/api/store"
 )
 
 func AuthRouter(w http.ResponseWriter, r *http.Request) {

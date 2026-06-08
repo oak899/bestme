@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oak899/bestme/api/models"
+	"github.com/oak899/growthos/api/models"
 )
 
 func RoutinesRouter(w http.ResponseWriter, r *http.Request) {

@@ -1,5 +1,5 @@
 package handlers
 
-import "github.com/oak899/bestme/api/store"
+import "github.com/oak899/growthos/api/store"
 
 var DB *store.Store

@@ -70,7 +70,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         physics: const NeverScrollableScrollPhysics(),
                         mainAxisSpacing: AppSpacing.md,
                         crossAxisSpacing: AppSpacing.md,
-                        childAspectRatio: 1.6,
+                        childAspectRatio: 1.3,
                         children: [
                           AppMetricCard(label: '完成率', value: '${data.weekCompletionPct}%', icon: Icons.check_circle_outline, color: AppColors.done),
                           AppMetricCard(label: '高优完成', value: '${data.highPriorityCompletionPct}%', icon: Icons.priority_high, color: AppColors.primary),

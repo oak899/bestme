@@ -19,7 +19,7 @@ EOF
 fi
 
 GH="${GH_BIN:-$HOME/.local/bin/gh}"
-REMOTE="git@github.com:oak899/bestme.git"
+REMOTE="git@github.com:oak899/growthos.git"
 
 if git remote | grep -qx origin; then
   git remote set-url origin "$REMOTE"
@@ -27,17 +27,17 @@ else
   git remote add origin "$REMOTE"
 fi
 
-if "$GH" repo view oak899/bestme >/dev/null 2>&1; then
+if "$GH" repo view oak899/growthos >/dev/null 2>&1; then
   echo "Repo exists, pushing..."
 else
-  echo "Creating repo oak899/bestme..."
-  "$GH" repo create oak899/bestme --public --source=. --remote=origin --push
-  echo "Done: https://github.com/oak899/bestme"
+  echo "Creating repo oak899/growthos..."
+  "$GH" repo create oak899/growthos --public --source=. --remote=origin --push
+  echo "Done: https://github.com/oak899/growthos"
   read -r -p "Press Enter to close..."
   exit 0
 fi
 
 git branch -M main
 git push -u origin main
-echo "Done: https://github.com/oak899/bestme"
+echo "Done: https://github.com/oak899/growthos"
 read -r -p "Press Enter to close..."

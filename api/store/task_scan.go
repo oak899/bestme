@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/oak899/bestme/api/models"
+	"github.com/oak899/growthos/api/models"
 )
 
 const taskSelectSQL = `SELECT id, title, description, category, date, status,

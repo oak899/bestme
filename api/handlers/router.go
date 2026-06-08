@@ -10,7 +10,7 @@ func Router(w http.ResponseWriter, r *http.Request) {
 	if path == "/api" || path == "/api/" {
 		JSONOK(w, map[string]string{
 			"name":    "GrowthOS",
-			"product": "BestMe",
+			"product": "GrowthOS",
 			"version": "5.0.0",
 			"storage": "sqlite",
 		})

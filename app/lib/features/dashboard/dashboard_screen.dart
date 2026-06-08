@@ -13,7 +13,6 @@ import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/app_section_header.dart';
 import '../../shared/widgets/app_surface_card.dart';
 import '../../shared/widgets/decorative_background.dart';
-import '../../shared/widgets/mini_kanban.dart';
 import '../../widgets/task_tile.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -55,7 +54,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ],
       refreshIndicator: () async {
         await state.refreshAll();
-        await state.loadKanban();
       },
       body: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -73,11 +71,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _planCard(state, dash),
                 const AppSectionHeader(title: '项目进度'),
                 _projectProgress(state),
-                const AppSectionHeader(title: '看板'),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
-                  child: MiniKanban(columns: state.kanban),
-                ),
                 const AppSectionHeader(title: '进行中'),
                 ..._tasks(dash?.inProgress ?? [], state, '暂无进行中的任务'),
                 const AppSectionHeader(title: '待办'),
@@ -105,7 +98,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => context.go('/ai-coach'),
+                        onTap: () => context.push('/ai-coach'),
                         borderRadius: BorderRadius.circular(14),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),

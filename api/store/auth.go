@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/oak899/bestme/api/models"
+	"github.com/oak899/growthos/api/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

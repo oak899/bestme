@@ -131,7 +131,7 @@ class _AiPlanScreenState extends State<AiPlanScreen> {
       setState(() => _result = outcome.notes != null ? '$msg\n\n${outcome.notes}' : msg);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       if (outcome.count > 0) {
-        Navigator.pop(context);
+        if (context.mounted) Navigator.of(context).pop();
       }
     } catch (e) {
       if (!mounted) return;

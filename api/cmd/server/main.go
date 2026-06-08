@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oak899/bestme/api/handlers"
-	"github.com/oak899/bestme/api/store"
+	"github.com/oak899/growthos/api/handlers"
+	"github.com/oak899/growthos/api/store"
 )
 
 func main() {
@@ -56,7 +56,7 @@ func main() {
 		})
 	}
 
-	log.Printf("BestMe listening on %s (db=%s)", addr, dbPath)
+	log.Printf("GrowthOS listening on %s (db=%s)", addr, dbPath)
 	log.Fatal(http.ListenAndServe(addr, mux))
 }
 

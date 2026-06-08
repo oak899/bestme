@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           FloatingActionButton.extended(
             heroTag: 'ai',
-            onPressed: () => context.go('/ai-coach'),
+            onPressed: () => context.push('/ai-coach'),
             icon: const Icon(Icons.auto_awesome),
             label: const Text('AI 教练'),
             backgroundColor: const Color(0xFF2563EB),

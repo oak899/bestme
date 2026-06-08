@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/oak899/bestme/api/models"
+	"github.com/oak899/growthos/api/models"
 )
 
-const planSystem = `You are BestMe, a daily planning assistant. Given user goals for a day, output a JSON object only (no markdown) with:
+const planSystem = `You are GrowthOS, a daily planning assistant. Given user goals for a day, output a JSON object only (no markdown) with:
 {"tasks":[{"title":"...","description":"...","category":"life|work|exercise|other","needsVerification":false}],"notes":"brief planning tip"}
 Mark needsVerification true for tasks like sending mail, payments, or anything requiring proof.
 Balance life, work, and exercise when appropriate. Keep tasks actionable and specific.`
@@ -47,7 +47,7 @@ func SummarizeDay(date string, tasks []models.Task) (string, error) {
 
 func EventReminder(title, eventType, date string, daysUntil int) (string, error) {
 	user := fmt.Sprintf("Event: %s\nType: %s\nDate: %s\nDays until: %d\nWrite a short friendly reminder (1-2 sentences) with a suggested action.", title, eventType, date, daysUntil)
-	system := `You are BestMe reminder assistant. Be warm and practical.`
+	system := `You are GrowthOS reminder assistant. Be warm and practical.`
 	return Complete(system, user)
 }
 

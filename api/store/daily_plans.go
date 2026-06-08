@@ -3,7 +3,7 @@ package store
 import (
 	"database/sql"
 
-	"github.com/oak899/bestme/api/models"
+	"github.com/oak899/growthos/api/models"
 )
 
 func (s *Store) GetDailyPlan(date string) (*models.DailyPlan, error) {

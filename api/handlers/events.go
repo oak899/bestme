@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oak899/bestme/api/ai"
-	"github.com/oak899/bestme/api/models"
+	"github.com/oak899/growthos/api/ai"
+	"github.com/oak899/growthos/api/models"
 )
 
 func EventsRouter(w http.ResponseWriter, r *http.Request) {

@@ -1,8 +1,8 @@
-# GrowthOS (BestMe)
+# GrowthOS
 
-个人成长 + 工作计划 + 任务管理。在 BestMe 原有 **生活/工作/运动** 追踪与 AI 能力上，合并了 GrowthOS 功能：看板、每日计划、项目、仪表盘等。
+个人成长 + 工作计划 + 任务管理。在 GrowthOS 原有 **生活/工作/运动** 追踪与 AI 能力上，合并了 GrowthOS 功能：看板、每日计划、项目、仪表盘等。
 
-产品名：**GrowthOS · 成长计划**（代码库与部署路径仍为 `bestme`）
+产品名：**GrowthOS · 成长计划**（）
 
 - **Flutter** — web & mobile client (calls REST API)
 - **Go + SQLite** — tasks, routines, events on server (`/opt/bestme/data/bestme.db`)
@@ -20,7 +20,7 @@
 Isolated from other projects (`vivid`, `iwell`, `reson`, `livekit`):
 
 ```bash
-cd ~/zfloo/bestme
+cd ~/zfloo/growthos
 chmod +x deploy/deploy.sh
 ./deploy/deploy.sh
 ```

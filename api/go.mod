@@ -1,4 +1,4 @@
-module github.com/oak899/bestme/api
+module github.com/oak899/growthos/api
 
 go 1.20
 

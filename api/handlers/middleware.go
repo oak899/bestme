@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/oak899/bestme/api/auth"
+	"github.com/oak899/growthos/api/auth"
 )
 
 type ctxKey int

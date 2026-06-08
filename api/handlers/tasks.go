@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oak899/bestme/api/models"
+	"github.com/oak899/growthos/api/models"
 )
 
 func TasksRouter(w http.ResponseWriter, r *http.Request) {

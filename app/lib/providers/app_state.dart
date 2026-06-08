@@ -75,7 +75,6 @@ class AppState extends ChangeNotifier {
     initialized = true;
     notifyListeners();
     unawaited(refreshAll());
-    unawaited(loadKanban());
     unawaited(loadActiveTimer());
   }
 
@@ -120,7 +119,7 @@ class AppState extends ChangeNotifier {
     } else {
       await _api.updateTask(task);
     }
-    await Future.wait([loadTasks(), loadDashboard(), loadKanban()]);
+    await Future.wait([loadTasks(), loadDashboard()]);
   }
 
   Future<List<TaskHistory>> loadTaskHistory(String id) => _api.getTaskHistory(id);
@@ -350,7 +349,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> updateTaskStatus(Task task, String status) async {
     await _api.updateTaskStatus(task.id, status);
-    await Future.wait([loadTasks(), loadKanban(), loadDashboard()]);
+    await Future.wait([loadTasks(), loadDashboard()]);
   }
 
   Future<({int count, String? notes})> runAiPlan(String input) async {

@@ -83,7 +83,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Icons.login_outlined,
                 title: '登录 / 注册',
                 subtitle: '同步数据到云端',
-                onTap: () => context.push('/login'),
+                onTap: () async {
+                  await state.logout();
+                  if (context.mounted) context.push('/login');
+                },
               ),
           ]),
           const SizedBox(height: AppSpacing.md),
@@ -192,15 +195,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final ctrl = TextEditingController(text: '${s.dailyGoalMinutes ~/ 60}');
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('每日目标（小时）'),
         content: TextField(controller: ctrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '小时')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(dialogCtx), child: const Text('取消')),
           FilledButton(
             onPressed: () async {
               await state.saveSettings(s.copyWith(dailyGoalMinutes: (int.tryParse(ctrl.text) ?? 8) * 60));
-              if (context.mounted) Navigator.pop(context);
+              if (dialogCtx.mounted) Navigator.pop(dialogCtx);
             },
             child: const Text('保存'),
           ),
@@ -213,11 +216,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final ctrl = TextEditingController(text: s.growthGoal);
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('成长目标'),
         content: TextField(controller: ctrl, maxLines: 3, decoration: const InputDecoration(hintText: '描述你的长期成长目标')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(dialogCtx), child: const Text('取消')),
           FilledButton(
             onPressed: () async {
               await state.saveSettings(UserSettings(
@@ -228,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 growthGoal: ctrl.text.trim(),
                 dailyPlanRemindAt: s.dailyPlanRemindAt,
               ));
-              if (context.mounted) Navigator.pop(context);
+              if (dialogCtx.mounted) Navigator.pop(dialogCtx);
             },
             child: const Text('保存'),
           ),

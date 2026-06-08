@@ -1,6 +1,6 @@
 package store
 
-import "github.com/oak899/bestme/api/models"
+import "github.com/oak899/growthos/api/models"
 
 func (s *Store) GetSettings() (*models.UserSettings, error) {
 	var us models.UserSettings

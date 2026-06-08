@@ -162,7 +162,7 @@ class _DailyPlanScreenState extends State<DailyPlanScreen> {
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () => context.go('/ai-coach'),
+            onPressed: () => context.push('/ai-coach'),
             icon: const Icon(Icons.auto_awesome),
             label: const Text('用 AI 生成任务'),
           ),

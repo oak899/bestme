@@ -3,7 +3,7 @@ package store
 import (
 	"time"
 
-	"github.com/oak899/bestme/api/models"
+	"github.com/oak899/growthos/api/models"
 )
 
 func periodDays(period string) int {
