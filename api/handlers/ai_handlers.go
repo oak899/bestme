@@ -1,18 +1,13 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/oak899/bestme/api/ai"
-	"github.com/oak899/bestme/api/db"
 	"github.com/oak899/bestme/api/models"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func AIRouter(w http.ResponseWriter, r *http.Request) {
@@ -26,8 +21,12 @@ func AIRouter(w http.ResponseWriter, r *http.Request) {
 		aiSummary(w, r)
 	case path == "apply-plan" && r.Method == http.MethodPost:
 		applyPlan(w, r)
+	case path == "plan-and-apply" && r.Method == http.MethodPost:
+		planAndApply(w, r)
+	case path == "reminder" && r.Method == http.MethodPost:
+		aiReminder(w, r)
 	default:
-		http.Error(w, "not found", http.StatusNotFound)
+		http.NotFound(w, r)
 	}
 }
 
@@ -44,13 +43,40 @@ func aiPlan(w http.ResponseWriter, r *http.Request) {
 		JSONError(w, "input required", http.StatusBadRequest)
 		return
 	}
-
 	plan, err := ai.GeneratePlan(req.Date, req.Input)
 	if err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	JSONOK(w, plan)
+}
+
+func planAndApply(w http.ResponseWriter, r *http.Request) {
+	var req models.PlanRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		JSONError(w, "invalid body", http.StatusBadRequest)
+		return
+	}
+	if req.Date == "" {
+		req.Date = time.Now().Format("2006-01-02")
+	}
+	if req.Input == "" {
+		JSONError(w, "input required", http.StatusBadRequest)
+		return
+	}
+	plan, err := ai.GeneratePlan(req.Date, req.Input)
+	if err != nil {
+		JSONError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	created := savePlanTasks(*plan)
+	JSONOK(w, map[string]any{
+		"date":    plan.Date,
+		"count":   len(created),
+		"created": created,
+		"notes":   plan.Notes,
+		"plan":    plan,
+	})
 }
 
 func applyPlan(w http.ResponseWriter, r *http.Request) {
@@ -62,45 +88,36 @@ func applyPlan(w http.ResponseWriter, r *http.Request) {
 	if plan.Date == "" {
 		plan.Date = time.Now().Format("2006-01-02")
 	}
+	created := savePlanTasks(plan)
+	JSONOK(w, map[string]any{"created": created, "count": len(created), "notes": plan.Notes})
+}
 
-	col, err := db.Collection("tasks")
-	if err != nil {
-		JSONError(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
-	defer cancel()
-
+func savePlanTasks(plan models.PlanResponse) []models.Task {
 	created := []models.Task{}
 	for _, draft := range plan.Tasks {
+		cat := draft.Category
+		if cat == "" {
+			cat = models.CategoryOther
+		}
 		status := models.StatusPending
 		if draft.NeedsVerification {
 			status = models.StatusNeedsVerification
 		}
-		task := models.Task{
+		t := models.Task{
 			Title:             draft.Title,
 			Description:       draft.Description,
-			Category:          draft.Category,
+			Category:          cat,
 			Date:              plan.Date,
 			Status:            status,
 			AIGenerated:       true,
 			NeedsVerification: draft.NeedsVerification,
-			CreatedAt:         time.Now(),
 		}
-		res, err := col.InsertOne(ctx, task)
-		if err != nil {
+		if err := DB.CreateTask(&t); err != nil {
 			continue
 		}
-		task.ID = res.InsertedID.(primitive.ObjectID)
-		created = append(created, task)
+		created = append(created, t)
 	}
-
-	JSONOK(w, map[string]interface{}{
-		"created": created,
-		"count":   len(created),
-		"notes":   plan.Notes,
-	})
+	return created
 }
 
 func aiSummary(w http.ResponseWriter, r *http.Request) {
@@ -112,39 +129,41 @@ func aiSummary(w http.ResponseWriter, r *http.Request) {
 	if req.Date == "" {
 		req.Date = time.Now().Format("2006-01-02")
 	}
-
-	col, err := db.Collection("tasks")
-	if err != nil {
-		JSONError(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 20*time.Second)
-	defer cancel()
-
-	cur, err := col.Find(ctx, bson.M{"date": req.Date}, options.Find().SetSort(bson.D{{Key: "createdAt", Value: 1}}))
+	tasks, err := DB.ListTasks(req.Date, "")
 	if err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer cur.Close(ctx)
-
-	var tasks []models.Task
-	if err := cur.All(ctx, &tasks); err != nil {
-		JSONError(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if tasks == nil {
-		tasks = []models.Task{}
-	}
-
 	summary := buildSummary(req.Date, tasks)
-	text, err := ai.SummarizeDay(req.Date, tasks)
-	if err == nil {
+	if text, err := ai.SummarizeDay(req.Date, tasks); err == nil {
 		summary.AISummary = text
 	}
-
 	JSONOK(w, summary)
+}
+
+type reminderRequest struct {
+	Title     string `json:"title"`
+	Type      string `json:"type"`
+	Date      string `json:"date"`
+	DaysUntil int    `json:"daysUntil"`
+}
+
+func aiReminder(w http.ResponseWriter, r *http.Request) {
+	var req reminderRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		JSONError(w, "invalid body", http.StatusBadRequest)
+		return
+	}
+	if req.Title == "" {
+		JSONError(w, "title required", http.StatusBadRequest)
+		return
+	}
+	msg, err := ai.EventReminder(req.Title, req.Type, req.Date, req.DaysUntil)
+	if err != nil {
+		JSONError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	JSONOK(w, map[string]string{"message": msg})
 }
 
 func buildSummary(date string, tasks []models.Task) models.DailySummary {
@@ -155,7 +174,6 @@ func buildSummary(date string, tasks []models.Task) models.DailySummary {
 	for _, cat := range models.ValidCategories {
 		s.ByCategory[cat] = models.CategoryStats{}
 	}
-
 	for _, t := range tasks {
 		s.Total++
 		stats := s.ByCategory[t.Category]

@@ -14,6 +14,7 @@ class _AiPlanScreenState extends State<AiPlanScreen> {
   final _input = TextEditingController();
   bool _loading = false;
   String? _result;
+  String? _error;
 
   @override
   void dispose() {
@@ -24,73 +25,123 @@ class _AiPlanScreenState extends State<AiPlanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AI Daily Plan')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Describe your goals for today',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+      appBar: AppBar(title: const Text('AI 教练')),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Describe your goals for today',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'AI will create a balanced plan across life, work, and exercise. '
+                  'This may take 10–30 seconds.',
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _input,
+                  maxLines: 6,
+                  enabled: !_loading,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. Finish quarterly report, gym 30 min, call mom, mail tax form...',
+                    border: OutlineInputBorder(),
+                  ),
+                  onSubmitted: (_) => _generate(),
+                ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: _loading ? null : _generate,
+                  icon: const Icon(Icons.auto_awesome),
+                  label: Text(_loading ? 'Generating...' : 'Generate & apply plan'),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 16),
+                  Material(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(_error!, style: TextStyle(color: Colors.red.shade900)),
+                    ),
+                  ),
+                ],
+                if (_result != null) ...[
+                  const SizedBox(height: 16),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(_result!),
+                    ),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'AI will create a balanced plan across life, work, and exercise. '
-              'Tasks like sending mail will be flagged for verification.',
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _input,
-              maxLines: 6,
-              decoration: const InputDecoration(
-                hintText: 'e.g. Finish quarterly report, gym 30 min, call mom, mail tax form...',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _loading ? null : _generate,
-              icon: _loading
-                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.auto_awesome),
-              label: Text(_loading ? 'Generating...' : 'Generate & apply plan'),
-            ),
-            if (_result != null) ...[
-              const SizedBox(height: 20),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(_result!),
+          ),
+          if (_loading)
+            ColoredBox(
+              color: Colors.black26,
+              child: Center(
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        Text('Asking AI to plan your day…', style: Theme.of(context).textTheme.titleMedium),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ],
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
 
   Future<void> _generate() async {
-    if (_input.text.trim().isEmpty) return;
+    final text = _input.text.trim();
+    if (text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please describe your goals first')),
+      );
+      return;
+    }
+
     setState(() {
       _loading = true;
       _result = null;
+      _error = null;
     });
+
     try {
       final state = context.read<AppState>();
-      final count = await state.runAiPlan(_input.text.trim());
-      await state.loadTasks();
-      setState(() => _result = 'Created $count tasks for ${state.selectedDate}.');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('AI plan applied: $count tasks')),
-        );
+      final outcome = await state.runAiPlan(text);
+      if (!mounted) return;
+      final msg = outcome.count > 0
+          ? 'Created ${outcome.count} tasks for ${state.selectedDate}.'
+          : 'AI returned a plan but no tasks were saved. Try again.';
+      setState(() => _result = outcome.notes != null ? '$msg\n\n${outcome.notes}' : msg);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      if (outcome.count > 0) {
+        Navigator.pop(context);
       }
     } catch (e) {
-      setState(() => _result = 'Error: $e');
+      if (!mounted) return;
+      final err = e.toString();
+      setState(() => _error = err);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed: $err'), backgroundColor: Colors.red.shade700),
+      );
     } finally {
-      setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 }

@@ -1,78 +1,57 @@
-# BestMe
+# GrowthOS (BestMe)
 
-AI-powered daily tracker for **life**, **work**, and **exercise**. Built with **Flutter** (mobile/web) and **Go** (Vercel serverless), backed by **MongoDB Atlas**.
+个人成长 + 工作计划 + 任务管理。在 BestMe 原有 **生活/工作/运动** 追踪与 AI 能力上，合并了 GrowthOS 功能：看板、每日计划、项目、仪表盘等。
 
-## Features
+产品名：**GrowthOS · 成长计划**（代码库与部署路径仍为 `bestme`）
 
-- **Daily tasks** by category (life, work, exercise, other)
-- **AI daily plan** — describe your goals; AI creates a structured task list
-- **Task states** — pending, done, needs verification (mail, payments, etc.)
-- **Daily summary** — stats by category + AI narrative recap
-- **Routines** — create once, auto-repeat every day
-- **Events & birthdays** — reminders with AI-generated messages
+- **Flutter** — web & mobile client (calls REST API)
+- **Go + SQLite** — tasks, routines, events on server (`/opt/bestme/data/bestme.db`)
+- **AI** — daily plans, summaries, reminders via OpenAI
 
-## Project structure
+## Architecture
 
-```
-bestme/
-├── api/          # Go API for Vercel serverless
-├── app/          # Flutter client
-├── vercel.json
-└── .env.example
-```
+| Component | Where |
+|-----------|--------|
+| Flutter app | Browser / phone → `https://bestme.zfloo.com/api` |
+| Go API + SQLite | `/opt/bestme` on `45.76.66.28` |
 
-## Setup
+## Deploy to 45.76.66.28
 
-### 1. MongoDB Atlas
-
-1. Create a free cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
-2. Create database user and allow network access
-3. Copy connection string → `MONGODB_URI`
-
-### 2. OpenAI
-
-Set `OPENAI_API_KEY` for AI plan, summary, and event reminders.
-
-### 3. Deploy API to Vercel
+Isolated from other projects (`vivid`, `iwell`, `reson`, `livekit`):
 
 ```bash
 cd ~/zfloo/bestme
-vercel link
-vercel env add MONGODB_URI
-vercel env add OPENAI_API_KEY
-vercel --prod
+chmod +x deploy/deploy.sh
+./deploy/deploy.sh
 ```
 
-### 4. Run Flutter app
+First-time on server:
+
+```bash
+ssh root@45.76.66.28
+cp /opt/bestme/bestme.env.example /opt/bestme/bestme.env
+chmod 600 /opt/bestme/bestme.env
+# Add OPENAI_API_KEY=sk-...
+systemctl restart bestme
+```
+
+Site: **https://bestme.zfloo.com** (Let's Encrypt TLS via certbot).
+
+## Run Flutter (mobile)
 
 ```bash
 cd app
 flutter pub get
-flutter run --dart-define=API_BASE_URL=https://YOUR-PROJECT.vercel.app/api
-```
-
-For local API testing with `vercel dev`:
-
-```bash
-vercel dev
-# In another terminal:
-cd app && flutter run --dart-define=API_BASE_URL=http://localhost:3000/api
+flutter run --dart-define=API_BASE_URL=https://bestme.zfloo.com/api
 ```
 
 ## API endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/tasks?date=YYYY-MM-DD` | List tasks |
-| POST | `/api/tasks` | Create task |
-| PATCH | `/api/tasks/:id/status` | Update status |
-| POST | `/api/tasks/generate-routines` | Materialize today's routines |
-| POST | `/api/ai/plan` | Generate AI daily plan |
-| POST | `/api/ai/apply-plan` | Save AI plan as tasks |
-| POST | `/api/ai/summary` | Daily summary + AI recap |
-| GET/POST | `/api/routines` | Daily repeating routines |
-| GET/POST | `/api/events` | Birthdays & events |
-| GET | `/api/events/reminders` | Upcoming AI reminders |
+| POST | `/api/ai/plan` | Generate daily plan |
+| POST | `/api/ai/summary` | AI recap (client sends tasks) |
+| POST | `/api/ai/reminder` | AI event reminder |
 
 ## License
 

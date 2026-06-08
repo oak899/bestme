@@ -9,13 +9,17 @@ func Router(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	if path == "/api" || path == "/api/" {
 		JSONOK(w, map[string]string{
-			"name":    "BestMe API",
-			"version": "1.0.0",
+			"name":    "GrowthOS",
+			"product": "BestMe",
+			"version": "5.0.0",
+			"storage": "sqlite",
 		})
 		return
 	}
 
 	switch {
+	case strings.HasPrefix(path, "/api/auth"):
+		AuthRouter(w, r)
 	case strings.HasPrefix(path, "/api/tasks"):
 		TasksRouter(w, r)
 	case strings.HasPrefix(path, "/api/routines"):
@@ -24,6 +28,20 @@ func Router(w http.ResponseWriter, r *http.Request) {
 		EventsRouter(w, r)
 	case strings.HasPrefix(path, "/api/ai"):
 		AIRouter(w, r)
+	case path == "/api/dashboard":
+		DashboardRouter(w, r)
+	case strings.HasPrefix(path, "/api/daily-plans"):
+		DailyPlansRouter(w, r)
+	case strings.HasPrefix(path, "/api/projects"):
+		ProjectsRouter(w, r)
+	case strings.HasPrefix(path, "/api/kanban"):
+		KanbanRouter(w, r)
+	case strings.HasPrefix(path, "/api/time-entries"):
+		TimeEntriesRouter(w, r)
+	case path == "/api/settings":
+		SettingsRouter(w, r)
+	case path == "/api/reports":
+		ReportsRouter(w, r)
 	default:
 		http.NotFound(w, r)
 	}

@@ -1,17 +1,12 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
-	"time"
 
-	"github.com/oak899/bestme/api/db"
 	"github.com/oak899/bestme/api/models"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func RoutinesRouter(w http.ResponseWriter, r *http.Request) {
@@ -26,29 +21,13 @@ func RoutinesRouter(w http.ResponseWriter, r *http.Request) {
 	case path != "" && r.Method == http.MethodDelete:
 		deleteRoutine(w, r, path)
 	default:
-		http.Error(w, "not found", http.StatusNotFound)
+		http.NotFound(w, r)
 	}
 }
 
 func listRoutines(w http.ResponseWriter, r *http.Request) {
-	col, err := db.Collection("routines")
+	items, err := DB.ListRoutines(false)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	cur, err := col.Find(ctx, bson.M{}, options.Find().SetSort(bson.D{{Key: "createdAt", Value: 1}}))
-	if err != nil {
-		JSONError(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer cur.Close(ctx)
-
-	var items []models.Routine
-	if err := cur.All(ctx, &items); err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -71,45 +50,20 @@ func createRoutine(w http.ResponseWriter, r *http.Request) {
 	if item.Category == "" {
 		item.Category = models.CategoryLife
 	}
-	item.Active = true
-	item.CreatedAt = time.Now()
-
-	col, err := db.Collection("routines")
-	if err != nil {
-		JSONError(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	res, err := col.InsertOne(ctx, item)
-	if err != nil {
+	if err := DB.CreateRoutine(&item); err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	item.ID = res.InsertedID.(primitive.ObjectID)
 	JSONOK(w, item)
 }
 
-func deleteRoutine(w http.ResponseWriter, r *http.Request, id string) {
-	oid, err := primitive.ObjectIDFromHex(id)
+func deleteRoutine(w http.ResponseWriter, r *http.Request, idStr string) {
+	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		JSONError(w, "invalid id", http.StatusBadRequest)
 		return
 	}
-
-	col, err := db.Collection("routines")
-	if err != nil {
-		JSONError(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	_, err = col.DeleteOne(ctx, bson.M{"_id": oid})
-	if err != nil {
+	if err := DB.DeleteRoutine(id); err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

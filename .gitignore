@@ -5,6 +5,8 @@
 
 # Go
 api/bin/
+deploy/artifacts/
+deploy/deploy.log
 *.exe
 
 # Flutter
