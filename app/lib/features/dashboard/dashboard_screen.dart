@@ -50,10 +50,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             if (picked != null) await state.setDate(picked);
           },
         ),
-        IconButton(icon: const Icon(Icons.refresh), tooltip: '刷新', onPressed: () => state.refreshAll()),
+        IconButton(icon: const Icon(Icons.refresh), tooltip: '刷新', onPressed: () {
+          print('DASHBOARD: Refresh button pressed');
+          state.refreshAll();
+        }),
       ],
       refreshIndicator: () async {
+        print('DASHBOARD: Pull-to-refresh triggered');
         await state.refreshAll();
+        print('DASHBOARD: Pull-to-refresh completed');
       },
       body: ListView(
               physics: const AlwaysScrollableScrollPhysics(),

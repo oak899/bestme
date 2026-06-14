@@ -79,10 +79,15 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> refreshAll() {
-    return _refreshFuture ??= _refreshAllImpl().whenComplete(() => _refreshFuture = null);
+    print('REFRESH: refreshAll called');
+    return _refreshFuture ??= _refreshAllImpl().whenComplete(() {
+      print('REFRESH: refreshAll completed');
+      _refreshFuture = null;
+    });
   }
 
   Future<void> _refreshAllImpl() async {
+    print('REFRESH: _refreshAllImpl started, setting loading=true');
     loading = true;
     error = null;
     notifyListeners();
@@ -106,6 +111,7 @@ class AppState extends ChangeNotifier {
       print('API Error: $e');
       error = e.toString();
     } finally {
+      print('REFRESH: setting loading=false');
       loading = false;
       notifyListeners();
     }
