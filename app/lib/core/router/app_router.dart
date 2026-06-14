@@ -21,7 +21,8 @@ GoRouter createAppRouter(AppState state) => GoRouter(
         if (!state.initialized) return null;
         final onLogin = goState.matchedLocation == '/login';
         if (state.serverSupportsAuth && !state.auth.canUseApp && !onLogin) return '/login';
-        if (state.auth.canUseApp && onLogin) return '/dashboard';
+        // Disable auto-redirect from login page - let manual navigation handle it
+        // if (state.auth.canUseApp && onLogin) return '/dashboard';
         return null;
       },
       debugLogDiagnostics: true,
