@@ -42,12 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         await state.login(_email.text.trim(), _password.text);
       }
-      // Navigate immediately like the skip button does
+      // Router will handle redirect automatically
       print('Login successful, auth.canUseApp: ${state.auth.canUseApp}, isLoggedIn: ${state.auth.isLoggedIn}');
-      if (mounted) {
-        print('Attempting navigation to /dashboard');
-        context.go('/dashboard');
-      }
     } catch (e) {
       final msg = e.toString();
       if (msg.contains('404')) {
