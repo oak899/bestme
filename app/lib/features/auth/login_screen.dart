@@ -42,8 +42,13 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         await state.login(_email.text.trim(), _password.text);
       }
-      // Router will handle redirect automatically
+      // Force navigation after successful login with delay
       print('Login successful, auth.canUseApp: ${state.auth.canUseApp}, isLoggedIn: ${state.auth.isLoggedIn}');
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (mounted) {
+        print('Attempting navigation to /dashboard');
+        context.go('/dashboard');
+      }
     } catch (e) {
       final msg = e.toString();
       if (msg.contains('404')) {
