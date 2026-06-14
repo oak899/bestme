@@ -364,9 +364,18 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> login(String email, String password) async {
+    print('AppState.login: calling API with $email');
     final r = await _api.login(email, password);
-    if (r.token.isNotEmpty) await auth.save(r.token, r.email);
+    print('AppState.login: API returned token="${r.token}", email="${r.email}"');
+    if (r.token.isNotEmpty) {
+      print('AppState.login: saving token');
+      await auth.save(r.token, r.email);
+      print('AppState.login: token saved, canUseApp=${auth.canUseApp}, isLoggedIn=${auth.isLoggedIn}');
+    } else {
+      print('AppState.login: token is empty, not saving');
+    }
     notifyListeners(); // Notify immediately so router can redirect
+    print('AppState.login: notifyListeners called');
     // Don't block on refreshAll - do it in background
     unawaited(refreshAll());
   }
