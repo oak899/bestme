@@ -37,15 +37,21 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     try {
       final state = context.read<AppState>();
+      print('Before login: canUseApp=${state.auth.canUseApp}, isLoggedIn=${state.auth.isLoggedIn}');
       if (_register) {
         await state.register(_email.text.trim(), _password.text, _name.text.trim());
       } else {
         await state.login(_email.text.trim(), _password.text);
       }
+      print('After login: canUseApp=${state.auth.canUseApp}, isLoggedIn=${state.auth.isLoggedIn}');
       // Navigate manually like the skip button does
-      print('Login successful, auth.canUseApp: ${state.auth.canUseApp}, isLoggedIn: ${state.auth.isLoggedIn}');
-      if (mounted) context.go('/dashboard');
+      if (mounted) {
+        print('Attempting navigation to /dashboard');
+        context.go('/dashboard');
+        print('Navigation called');
+      }
     } catch (e) {
+      print('Login error: $e');
       final msg = e.toString();
       if (msg.contains('404')) {
         setState(() => _error = '服务器 API 未更新（缺少登录接口）。请点「跳过」或联系管理员部署新版本。');
@@ -53,7 +59,10 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() => _error = msg);
       }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        print('Setting loading to false');
+        setState(() => _loading = false);
+      }
     }
   }
 
