@@ -58,33 +58,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
           context.read<AppState>().refreshAll();
         }),
       ],
-      refreshIndicator: () async {
-        print('DASHBOARD: Pull-to-refresh triggered');
-        await context.read<AppState>().refreshAll();
-        print('DASHBOARD: Pull-to-refresh completed');
-      },
-      body: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
-              children: [
-                if (loading || dash == null)
-                  const Padding(
-                    padding: EdgeInsets.all(48),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else ...[
-                _heroCard(context.read<AppState>(), dash, date),
-                if (activeTimer != null) _timerBar(context.read<AppState>()),
-                AppSectionHeader(title: '今日计划', actionLabel: '编辑', onAction: () => context.push('/daily-plan')),
-                _planCard(context.read<AppState>(), dash),
-                const AppSectionHeader(title: '项目进度'),
-                _projectProgress(context.read<AppState>()),
-                const AppSectionHeader(title: '进行中'),
-                ..._tasks(dash?.inProgress ?? [], context.read<AppState>(), '暂无进行中的任务'),
-                const AppSectionHeader(title: '待办'),
-                ..._tasks(dash?.todo ?? [], context.read<AppState>(), '暂无待办任务'),
-                const AppSectionHeader(title: '已完成'),
-                ..._tasks(dash?.done ?? [], context.read<AppState>(), '今日暂无已完成任务'),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          print('DASHBOARD: Pull-to-refresh triggered');
+          await context.read<AppState>().refreshAll();
+          print('DASHBOARD: Pull-to-refresh completed');
+        },
+        child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
+                children: [
+                  if (loading || dash == null)
+                    const Padding(
+                      padding: EdgeInsets.all(48),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else ...[
+                  _heroCard(context.read<AppState>(), dash, date),
+                  if (activeTimer != null) _timerBar(context.read<AppState>()),
+                  AppSectionHeader(title: '今日计划', actionLabel: '编辑', onAction: () => context.push('/daily-plan')),
+                  _planCard(context.read<AppState>(), dash),
+                  const AppSectionHeader(title: '项目进度'),
+                  _projectProgress(context.read<AppState>()),
+                  const AppSectionHeader(title: '进行中'),
+                  ..._tasks(dash?.inProgress ?? [], context.read<AppState>(), '暂无进行中的任务'),
+                  const AppSectionHeader(title: '待办'),
+                  ..._tasks(dash?.todo ?? [], context.read<AppState>(), '暂无待办任务'),
+                  const AppSectionHeader(title: '已完成'),
+                  ..._tasks(dash?.done ?? [], context.read<AppState>(), '今日暂无已完成任务'),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
                   child: Container(
