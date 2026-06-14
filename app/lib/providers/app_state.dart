@@ -367,14 +367,16 @@ class AppState extends ChangeNotifier {
     final r = await _api.login(email, password);
     if (r.token.isNotEmpty) await auth.save(r.token, r.email);
     notifyListeners(); // Notify immediately so router can redirect
-    await refreshAll();
+    // Don't block on refreshAll - do it in background
+    unawaited(refreshAll());
   }
 
   Future<void> register(String email, String password, String name) async {
     final r = await _api.register(email, password, name);
     if (r.token.isNotEmpty) await auth.save(r.token, r.email);
     notifyListeners(); // Notify immediately so router can redirect
-    await refreshAll();
+    // Don't block on refreshAll - do it in background
+    unawaited(refreshAll());
   }
 
   Future<void> logout() async {

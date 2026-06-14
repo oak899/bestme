@@ -42,9 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         await state.login(_email.text.trim(), _password.text);
       }
-      // Force navigation after successful login with delay
+      // Navigate immediately like the skip button does
       print('Login successful, auth.canUseApp: ${state.auth.canUseApp}, isLoggedIn: ${state.auth.isLoggedIn}');
-      await Future.delayed(const Duration(milliseconds: 200));
       if (mounted) {
         print('Attempting navigation to /dashboard');
         context.go('/dashboard');
