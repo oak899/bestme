@@ -92,14 +92,14 @@ class AppState extends ChangeNotifier {
       print('API: generateRoutineTasks completed');
       print('API: Starting parallel load');
       await Future.wait([
-        loadTasks(),
-        loadRoutines(),
-        loadEvents(),
-        loadReminders(),
-        loadDashboard(),
-        loadDailyPlan(),
-        loadProjects(),
-        loadTimeStats(),
+        _loadTasksNoNotify(),
+        _loadRoutinesNoNotify(),
+        _loadEventsNoNotify(),
+        _loadRemindersNoNotify(),
+        _loadDashboardNoNotify(),
+        _loadDailyPlanNoNotify(),
+        _loadProjectsNoNotify(),
+        _loadTimeStatsNoNotify(),
       ]);
       print('API: All parallel loads completed');
     } catch (e) {
@@ -116,6 +116,12 @@ class AppState extends ChangeNotifier {
     tasks = await _api.getTasks(selectedDate, category: selectedCategory);
     print('API: loadTasks completed');
     notifyListeners();
+  }
+
+  Future<void> _loadTasksNoNotify() async {
+    print('API: loadTasks started');
+    tasks = await _api.getTasks(selectedDate, category: selectedCategory);
+    print('API: loadTasks completed');
   }
 
   Future<Task> loadTask(String id) => _api.getTask(id);
@@ -146,11 +152,23 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _loadRoutinesNoNotify() async {
+    print('API: loadRoutines started');
+    routines = await _api.getRoutines();
+    print('API: loadRoutines completed');
+  }
+
   Future<void> loadEvents() async {
     print('API: loadEvents started');
     events = await _api.getEvents();
     print('API: loadEvents completed');
     notifyListeners();
+  }
+
+  Future<void> _loadEventsNoNotify() async {
+    print('API: loadEvents started');
+    events = await _api.getEvents();
+    print('API: loadEvents completed');
   }
 
   Future<void> loadReminders() async {
@@ -160,11 +178,23 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _loadRemindersNoNotify() async {
+    print('API: loadReminders started');
+    reminders = await _api.getReminders();
+    print('API: loadReminders completed');
+  }
+
   Future<void> loadDashboard() async {
     print('API: loadDashboard started');
     dashboard = await _api.getDashboard(selectedDate);
     print('API: loadDashboard completed');
     notifyListeners();
+  }
+
+  Future<void> _loadDashboardNoNotify() async {
+    print('API: loadDashboard started');
+    dashboard = await _api.getDashboard(selectedDate);
+    print('API: loadDashboard completed');
   }
 
   Future<void> loadDailyPlan() async {
@@ -185,6 +215,18 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  Future<void> _loadDailyPlanNoNotify() async {
+    print('API: loadDailyPlan started');
+    try {
+      dailyPlan = await _api.getDailyPlan(selectedDate);
+      print('API: loadDailyPlan completed');
+    } catch (e) {
+      print('API: loadDailyPlan error: $e');
+      dailyPlanError = e.toString();
+      dailyPlan = DailyPlan(planDate: selectedDate);
+    }
+  }
+
   Future<void> saveDailyPlan(DailyPlan plan) async {
     dailyPlan = await _api.saveDailyPlan(plan);
     notifyListeners();
@@ -200,6 +242,12 @@ class AppState extends ChangeNotifier {
     projects = await _api.getProjects();
     print('API: loadProjects completed');
     notifyListeners();
+  }
+
+  Future<void> _loadProjectsNoNotify() async {
+    print('API: loadProjects started');
+    projects = await _api.getProjects();
+    print('API: loadProjects completed');
   }
 
   Future<void> addProject({required String name, String goal = ''}) async {
@@ -276,6 +324,12 @@ class AppState extends ChangeNotifier {
     timeStats = await _api.getTimeStats(selectedDate);
     print('API: loadTimeStats completed');
     notifyListeners();
+  }
+
+  Future<void> _loadTimeStatsNoNotify() async {
+    print('API: loadTimeStats started');
+    timeStats = await _api.getTimeStats(selectedDate);
+    print('API: loadTimeStats completed');
   }
 
   Future<void> loadActiveTimer() async {
