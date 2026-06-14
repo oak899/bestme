@@ -29,9 +29,10 @@ String _formatDate(DateTime date) => '${DateFormat('yyyy年M月d日').format(dat
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
-    final dash = state.dashboard;
-    final date = DateTime.tryParse(state.selectedDate) ?? DateTime.now();
+    final dash = context.select((AppState s) => s.dashboard);
+    final loading = context.select((AppState s) => s.loading);
+    final date = DateTime.tryParse(context.select((AppState s) => s.selectedDate)) ?? DateTime.now();
+    final activeTimer = context.select((AppState s) => s.activeTimer);
 
     return AppScaffold(
       title: 'GrowthOS',
@@ -47,41 +48,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
               firstDate: DateTime(2020),
               lastDate: DateTime(2030),
             );
-            if (picked != null) await state.setDate(picked);
+            if (picked != null) await context.read<AppState>().setDate(picked);
           },
         ),
         IconButton(icon: const Icon(Icons.refresh), tooltip: '刷新', onPressed: () {
           print('DASHBOARD: Refresh button pressed');
-          state.refreshAll();
+          context.read<AppState>().refreshAll();
         }),
       ],
       refreshIndicator: () async {
         print('DASHBOARD: Pull-to-refresh triggered');
-        await state.refreshAll();
+        await context.read<AppState>().refreshAll();
         print('DASHBOARD: Pull-to-refresh completed');
       },
       body: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
               children: [
-                if (state.loading && dash == null)
+                if (loading && dash == null)
                   const Padding(
                     padding: EdgeInsets.all(48),
                     child: Center(child: CircularProgressIndicator()),
                   )
                 else ...[
-                _heroCard(state, dash, date),
-                if (state.activeTimer != null) _timerBar(state),
+                _heroCard(context.read<AppState>(), dash, date),
+                if (activeTimer != null) _timerBar(context.read<AppState>()),
                 AppSectionHeader(title: '今日计划', actionLabel: '编辑', onAction: () => context.push('/daily-plan')),
-                _planCard(state, dash),
+                _planCard(context.read<AppState>(), dash),
                 const AppSectionHeader(title: '项目进度'),
-                _projectProgress(state),
+                _projectProgress(context.read<AppState>()),
                 const AppSectionHeader(title: '进行中'),
-                ..._tasks(dash?.inProgress ?? [], state, '暂无进行中的任务'),
+                ..._tasks(dash?.inProgress ?? [], context.read<AppState>(), '暂无进行中的任务'),
                 const AppSectionHeader(title: '待办'),
-                ..._tasks(dash?.todo ?? [], state, '暂无待办任务'),
+                ..._tasks(dash?.todo ?? [], context.read<AppState>(), '暂无待办任务'),
                 const AppSectionHeader(title: '已完成'),
-                ..._tasks(dash?.done ?? [], state, '今日暂无已完成任务'),
+                ..._tasks(dash?.done ?? [], context.read<AppState>(), '今日暂无已完成任务'),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
                   child: Container(
