@@ -87,7 +87,10 @@ class AppState extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
+      print('API: Starting generateRoutineTasks');
       await _api.generateRoutineTasks(selectedDate);
+      print('API: generateRoutineTasks completed');
+      print('API: Starting parallel load');
       await Future.wait([
         loadTasks(),
         loadRoutines(),
@@ -98,7 +101,9 @@ class AppState extends ChangeNotifier {
         loadProjects(),
         loadTimeStats(),
       ]);
+      print('API: All parallel loads completed');
     } catch (e) {
+      print('API Error: $e');
       error = e.toString();
     } finally {
       loading = false;
@@ -107,7 +112,9 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> loadTasks() async {
+    print('API: loadTasks started');
     tasks = await _api.getTasks(selectedDate, category: selectedCategory);
+    print('API: loadTasks completed');
     notifyListeners();
   }
 
@@ -133,32 +140,43 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> loadRoutines() async {
+    print('API: loadRoutines started');
     routines = await _api.getRoutines();
+    print('API: loadRoutines completed');
     notifyListeners();
   }
 
   Future<void> loadEvents() async {
+    print('API: loadEvents started');
     events = await _api.getEvents();
+    print('API: loadEvents completed');
     notifyListeners();
   }
 
   Future<void> loadReminders() async {
+    print('API: loadReminders started');
     reminders = await _api.getReminders();
+    print('API: loadReminders completed');
     notifyListeners();
   }
 
   Future<void> loadDashboard() async {
+    print('API: loadDashboard started');
     dashboard = await _api.getDashboard(selectedDate);
+    print('API: loadDashboard completed');
     notifyListeners();
   }
 
   Future<void> loadDailyPlan() async {
+    print('API: loadDailyPlan started');
     dailyPlanLoading = true;
     dailyPlanError = null;
     notifyListeners();
     try {
       dailyPlan = await _api.getDailyPlan(selectedDate);
+      print('API: loadDailyPlan completed');
     } catch (e) {
+      print('API: loadDailyPlan error: $e');
       dailyPlanError = e.toString();
       dailyPlan = DailyPlan(planDate: selectedDate);
     } finally {
@@ -178,7 +196,9 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> loadProjects() async {
+    print('API: loadProjects started');
     projects = await _api.getProjects();
+    print('API: loadProjects completed');
     notifyListeners();
   }
 
@@ -252,7 +272,9 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> loadTimeStats() async {
+    print('API: loadTimeStats started');
     timeStats = await _api.getTimeStats(selectedDate);
+    print('API: loadTimeStats completed');
     notifyListeners();
   }
 
