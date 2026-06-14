@@ -42,8 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         await state.login(_email.text.trim(), _password.text);
       }
-      // Navigate to dashboard after successful login
-      if (mounted) context.go('/dashboard');
+      // Router will handle redirect automatically
+      print('Login successful, auth.canUseApp: ${state.auth.canUseApp}, isLoggedIn: ${state.auth.isLoggedIn}');
     } catch (e) {
       final msg = e.toString();
       if (msg.contains('404')) {

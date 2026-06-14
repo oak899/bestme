@@ -17,12 +17,14 @@ GoRouter createAppRouter(AppState state) => GoRouter(
       refreshListenable: state,
       initialLocation: '/dashboard',
       redirect: (context, goState) {
+        print('Router redirect: initialized=${state.initialized}, canUseApp=${state.auth.canUseApp}, isLoggedIn=${state.auth.isLoggedIn}, onLogin=${goState.matchedLocation == "/login"}');
         if (!state.initialized) return null;
         final onLogin = goState.matchedLocation == '/login';
         if (state.serverSupportsAuth && !state.auth.canUseApp && !onLogin) return '/login';
         if (state.auth.canUseApp && onLogin) return '/dashboard';
         return null;
       },
+      debugLogDiagnostics: true,
       routes: [
         GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
         GoRoute(path: '/tasks/:id', builder: (_, s) => TaskDetailScreen(taskId: s.pathParameters['id']!)),
