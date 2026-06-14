@@ -34,6 +34,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final date = DateTime.tryParse(context.select((AppState s) => s.selectedDate)) ?? DateTime.now();
     final activeTimer = context.select((AppState s) => s.activeTimer);
 
+    print('DASHBOARD build: loading=$loading, dash=$dash');
+
     return AppScaffold(
       title: 'GrowthOS',
       subtitle: _formatDate(date),
@@ -65,7 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
               children: [
-                if (loading && dash == null)
+                if (loading || dash == null)
                   const Padding(
                     padding: EdgeInsets.all(48),
                     child: Center(child: CircularProgressIndicator()),
