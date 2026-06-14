@@ -135,7 +135,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                         const SizedBox(height: AppSpacing.xl),
                         FilledButton(
-                          onPressed: _loading ? null : _submit,
+                          onPressed: () {
+                            print('Button pressed, _loading=$_loading');
+                            _submit();
+                          },
                           child: _loading
                               ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                               : Text(_register ? '注册' : '登录'),
