@@ -15,8 +15,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _email = TextEditingController();
-  final _password = TextEditingController();
+  final _email = TextEditingController(text: 'aaa@aaa.com');
+  final _password = TextEditingController(text: 'aaaaaa');
   final _name = TextEditingController();
   var _register = false;
   var _loading = false;
@@ -42,7 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         await state.login(_email.text.trim(), _password.text);
       }
-      // Router will handle redirect automatically via auth.canUseApp
+      // Navigate to dashboard after successful login
+      if (mounted) context.go('/dashboard');
     } catch (e) {
       final msg = e.toString();
       if (msg.contains('404')) {
